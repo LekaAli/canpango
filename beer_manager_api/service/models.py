@@ -18,7 +18,7 @@ class User(models.Model):
 class Beer(models.Model):
 
 	creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='beer', null=False, blank=False)
-	# name = models.CharField(max_length=80)
+	name = models.CharField(max_length=80, blank=False, null=False, default='')
 	ibu = models.CharField(max_length=30)
 	calories = models.CharField(max_length=30)
 	alcohol_by_volume = models.CharField(max_length=30)
@@ -28,7 +28,7 @@ class Beer(models.Model):
 	modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return '%s' % self.created
+		return '%s : %s' % (self.name, self.created)
 
 	def save(self, *args, **kwargs):
 		import datetime
@@ -76,13 +76,16 @@ class Review(models.Model):
 	aroma = models.PositiveIntegerField(choices=AROMA_RATING_OPTIONS, default=1)
 	apperance = models.PositiveIntegerField(choices=APPEARANCE_RATING_OPTIONS, default=1)
 	taste = models.PositiveIntegerField(choices=TASTE_RATING_OPTIONS, default=1)
-	overall = models.PositiveIntegerField()
+	overall = models.DecimalField(max_digits=6, decimal_places=2)
 	created = models.DateTimeField(auto_now_add=True)
 	modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return '%s : %s : %s' % (self.reviewer, self.beer, self.created)
 
-	# def save(self, *args, **kwargs):
-	# 	pass
+	def save(self, *args, **kwargs):
+		
+		overall_rating  = (float(self.aroma)/5 * flaot(self.apperance)/5 * float(taste)/10) * 100
+		self.overall = overall_rating
+		super(Review, self).save(*args, **kwargs)
 
